@@ -1,5 +1,5 @@
 """
-    Downloads a spotify playlists and outputs it as a playlist type object
+    Downloads a spotify playlists and saves the resulting pandas dataframe to a csv file
 """
 
 import spotipy

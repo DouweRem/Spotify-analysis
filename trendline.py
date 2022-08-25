@@ -22,9 +22,8 @@ def trendline(x, y, x_label, y_label, title):
     plt.grid(alpha=0.4)
     plt.show()
 
-df = download_metadata('https://open.spotify.com/playlist/598bwDA4m4zuo7s1DlLrR2?si=dbf2826c26104af9')
+df = download_metadata('Douwe Prog')
 
-df['add_date'] = pd.to_datetime(df['add_date'])
 time_diff = (df['add_date'] - df['add_date'][0]).astype('timedelta64[D]')
 
 position = (df['duration'] / 15000).round()

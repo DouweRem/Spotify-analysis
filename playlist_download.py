@@ -7,6 +7,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
 import os
 import time
+from datetime import datetime
 from tqdm import tqdm
 
 
@@ -39,19 +40,21 @@ def download_metadata(playlist_url, force_download=False):
         else:
             print("Invalid url")
             return
-    else:
-        playlist_URI = playlist_url.split("/")[-1].split("?")[0]
-        playlist = sp.playlist(playlist_URI)
-        playlist_name = playlist['name']
-        playlist_name = playlist_name.replace('|', '')
+
+    playlist_URI = playlist_url.split("/")[-1].split("?")[0]
+    playlist = sp.playlist(playlist_URI)
+    playlist_name = playlist['name']
+    playlist_name = playlist_name.replace('|', '')
 
     # Check if playlist already exists
     file_bool = os.path.exists(current_dir + "\\" + "playlist_data" + "\\" + playlist_name + ".csv")
     print(f'For {playlist_name}: ', end='')
 
     if file_bool and not force_download:
+        # If the file already exists and download is not forced, read the file and return it
         print("Loading data from file")
         df = pd.read_csv(current_dir + "\\" + "playlist_data" + "\\" + playlist_name + ".csv",
+                         parse_dates=['add_date', 'release_date'],
                          converters={'genres': pd.eval})
 
         return df
@@ -105,7 +108,7 @@ def download_metadata(playlist_url, force_download=False):
         track_artist.append(track["track"]["artists"][0]["name"])
         track_artist_uri.append(track["track"]["artists"][0]["uri"])
         track_duration.append(track["track"]["duration_ms"])
-        track_add_date.append(track["added_at"])
+        track_add_date.append(datetime.strptime(track["added_at"], "%Y-%m-%dT%H:%M:%SZ"))
         track_explicit.append(track["track"]["explicit"])
         track_popularity.append(track["track"]["popularity"])
 
@@ -128,7 +131,14 @@ def download_metadata(playlist_url, force_download=False):
         # Get features from the album and artist
         album = sp.album(track_album_uri[-1])
         artist = sp.artist(track_artist_uri[-1])
-        track_release_date.append(album["release_date"])
+
+        release_date = album["release_date"]
+        if len(release_date.split("-")) == 3:
+            track_release_date.append(datetime.strptime(release_date, "%Y-%m-%d"))
+        elif len(release_date.split("-")) == 2:
+            track_release_date.append(datetime.strptime(release_date, "%Y-%m"))
+        else:
+            track_release_date.append(datetime.strptime(release_date, "%Y"))
         track_genres.append(artist["genres"])
 
     df = pd.DataFrame({"name": track_name,
@@ -164,4 +174,4 @@ def download_metadata(playlist_url, force_download=False):
 
 
 if __name__ == '__main__':
-    df = download_metadata('https://open.spotify.com/playlist/6eJjpdP6w5Q3P58dLgBB3q?si=c817b19e15534378', True)
+    df = download_metadata('https://open.spotify.com/playlist/75viG6EUzwGyN09AxnBd2c?si=230747cb89de4e2d', True)

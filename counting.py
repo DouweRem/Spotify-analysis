@@ -45,11 +45,11 @@ def fit_poisson(array, label, bins=20):
     return popt
 
 
-douwe = download_metadata('https://open.spotify.com/playlist/3MxcUIKi9Iz1toP2ioB7h8?si=bc9de96765a24d0a')
-prog = download_metadata('Douwe Prog')
-chill = download_metadata('Douwe Chill')
-zomer = download_metadata('Douwe Zomer')
-top2000 = download_metadata('Douwe Top 2000')
+douwe = download_metadata('https://open.spotify.com/playlist/3MxcUIKi9Iz1toP2ioB7h8?si=da6bba824d1f4ce8')
+prog = download_metadata('https://open.spotify.com/playlist/75viG6EUzwGyN09AxnBd2c?si=69b00b75fdcc4f4b')
+chill = download_metadata('https://open.spotify.com/playlist/3WLfY9PJqpptZzo5vKfhzV?si=72c1be4b4e9c4137')
+zomer = download_metadata('https://open.spotify.com/playlist/01k1CQah7sqAYvRnO9oT39?si=0da67c75f06b4346')
+top2000 = download_metadata('https://open.spotify.com/playlist/04Prkjzzv8Rz1kA3MIZbkO?si=69aa7ef7eb6540f6')
 
 print(f'For Douwe: {round(douwe["duration"].mean()/60000, 2)} m')
 print(f'For Prog: {round(prog["duration"].mean()/60000, 2)} m')
@@ -57,13 +57,25 @@ print(f'For Chill: {round(chill["duration"].mean()/60000, 2)} m')
 print(f'For Zomer: {round(zomer["duration"].mean()/60000, 2)} m')
 print(f'For Top 2000: {round(top2000["duration"].mean()/60000, 2)} m')
 
-plt.hist(douwe['duration']/60000, 50, density=True, label='Douwe', alpha=0.5)
-plt.hist(prog['duration']/60000, 20, density=True, label='Prog', alpha=0.5)
-plt.hist(chill['duration']/60000, 20, density=True, label='Chill', alpha=0.5)
-plt.hist(zomer['duration']/60000, 20, density=True, label='Zomer', alpha=0.5)
-plt.hist(top2000['duration']/60000, 20, density=True, label='Top 2000', alpha=0.5)
+# plt.hist(douwe['duration']/60000, 50, density=True, label='Douwe', alpha=0.5)
+# plt.hist(prog['duration']/60000, 20, density=True, label='Prog', alpha=0.5)
+# # plt.hist(chill['duration']/60000, 20, density=True, label='Chill', alpha=0.5)
+# # plt.hist(zomer['duration']/60000, 20, density=True, label='Zomer', alpha=0.5)
+# plt.hist(top2000['duration']/60000, 20, density=True, label='Top 2000', alpha=0.5)
+#
+# plt.xlabel('Duration (min)')
+# plt.ylabel('Frequency')
+# plt.legend()
+# plt.grid(alpha=0.4)
+# plt.show()
 
-plt.xlabel('Duration (min)')
+plt.hist(douwe['release_date'], bins=60, density=True, label='Douwe', alpha=0.5)
+plt.hist(prog['release_date'], bins=60, density=True, label='Prog', alpha=0.5)
+plt.hist(chill['release_date'], bins=60, density=True, label='Chill', alpha=0.5)
+plt.hist(zomer['release_date'], bins=60, density=True, label='Zomer', alpha=0.5)
+plt.hist(top2000['release_date'], bins=60, density=True, label='Top 2000', alpha=0.5)
+
+plt.xlabel('Release date')
 plt.ylabel('Frequency')
 plt.legend()
 plt.grid(alpha=0.4)

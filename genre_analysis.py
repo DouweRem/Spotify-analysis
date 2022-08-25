@@ -12,8 +12,13 @@ for genre_list in df['genres']:
     for genre in genre_list:
         genres.append(genre)
 
-uniques, counts = np.unique(genres, return_counts=True)
+print(df['genres'][24])
 
-mask = counts > 4
-print(uniques[mask])
-print(counts[mask])
+
+# uniques, counts = np.unique(genres, return_counts=True)
+#
+#
+#
+# mask = counts > 4
+# print(uniques[mask])
+# print(counts[mask])

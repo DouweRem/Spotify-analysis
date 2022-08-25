@@ -7,6 +7,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
 import os
 import time
+from tqdm import tqdm
 
 
 
@@ -30,16 +31,29 @@ def download_metadata(playlist_url, force_download=False):
     # Get current directory
     current_dir = os.getcwd()
 
-    playlist_URI = playlist_url.split("/")[-1].split("?")[0]
-    playlist = sp.playlist(playlist_URI)
-    playlist_name = playlist['name']
+    # Check if input is a valid url
+    if not playlist_url.startswith('https://open.spotify.com/playlist/'):
+        playlist_url = playlist_url.replace('|', '')
+        if os.path.exists(current_dir + "\\" + "playlist_data" + "\\" + playlist_url + ".csv"):
+            playlist_name = playlist_url
+        else:
+            print("Invalid url")
+            return
+    else:
+        playlist_URI = playlist_url.split("/")[-1].split("?")[0]
+        playlist = sp.playlist(playlist_URI)
+        playlist_name = playlist['name']
+        playlist_name = playlist_name.replace('|', '')
 
     # Check if playlist already exists
     file_bool = os.path.exists(current_dir + "\\" + "playlist_data" + "\\" + playlist_name + ".csv")
+    print(f'For {playlist_name}: ', end='')
 
     if file_bool and not force_download:
         print("Loading data from file")
-        df = pd.read_csv(current_dir + "\\" + "playlist_data" + "\\" + playlist_name + ".csv")
+        df = pd.read_csv(current_dir + "\\" + "playlist_data" + "\\" + playlist_name + ".csv",
+                         converters={'genres': pd.eval})
+
         return df
 
     elif file_bool:
@@ -80,8 +94,10 @@ def download_metadata(playlist_url, force_download=False):
     track_valence = []
     track_tempo = []
     track_time_signature = []
+    track_genres = []
+    track_release_date = []
 
-    for track in tracks:
+    for track in tqdm(tracks):
         track_name.append(track["track"]["name"])
         track_uri.append(track["track"]["uri"])
         track_album.append(track["track"]["album"]["name"])
@@ -109,6 +125,12 @@ def download_metadata(playlist_url, force_download=False):
         track_tempo.append(audio_features["tempo"])
         track_time_signature.append(audio_features["time_signature"])
 
+        # Get features from the album and artist
+        album = sp.album(track_album_uri[-1])
+        artist = sp.artist(track_artist_uri[-1])
+        track_release_date.append(album["release_date"])
+        track_genres.append(artist["genres"])
+
     df = pd.DataFrame({"name": track_name,
                        "uri": track_uri,
                        "album": track_album,
@@ -130,7 +152,9 @@ def download_metadata(playlist_url, force_download=False):
                        "liveness": track_liveness,
                        "valence": track_valence,
                        "tempo": track_tempo,
-                       "time_signature": track_time_signature})
+                       "time_signature": track_time_signature,
+                       "genres": track_genres,
+                       "release_date": track_release_date})
 
     df.to_csv(current_dir + "\\" + "playlist_data" + "\\" + playlist_name + ".csv")
 
@@ -140,5 +164,4 @@ def download_metadata(playlist_url, force_download=False):
 
 
 if __name__ == '__main__':
-    df = download_metadata('https://open.spotify.com/playlist/598bwDA4m4zuo7s1DlLrR2?si=e24c81cf6968452f')
-    print(df)
+    df = download_metadata('https://open.spotify.com/playlist/6eJjpdP6w5Q3P58dLgBB3q?si=c817b19e15534378', True)
